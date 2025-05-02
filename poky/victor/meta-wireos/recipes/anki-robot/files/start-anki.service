@@ -1,0 +1,12 @@
+[Unit]
+Description=Start the actual Anki services
+Wants=multi-user-done.service
+After=multi-user-done.service
+
+[Service]
+Type=simple
+Restart=no
+ExecStart=/bin/systemctl start anki-robot.target
+
+[Install]
+WantedBy=multi-user.target

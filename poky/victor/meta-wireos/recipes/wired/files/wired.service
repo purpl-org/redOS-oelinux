@@ -1,0 +1,13 @@
+[Unit]
+Description=Silly wire daemon
+SourcePath=/usr/bin/wired
+
+ConditionFileIsExecutable=/usr/bin/logwrapper
+ConditionFileIsExecutable=/usr/bin/wired
+
+[Service]
+ExecStart=/usr/bin/logwrapper /usr/bin/wired
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

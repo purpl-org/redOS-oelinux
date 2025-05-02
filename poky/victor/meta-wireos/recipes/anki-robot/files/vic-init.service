@@ -1,0 +1,23 @@
+#
+# poky/meta-anki/recipes/anki-robot/files/vic-init.service
+#
+[Unit]
+Description=Victor init service
+SourcePath=/anki/bin/vic-init.sh
+PartOf=anki-robot.target
+
+Wants=anki-audio-init.service
+After=anki-audio-init.service fake-hwclock.service logd.service syslog.service factory.mount data.mount
+Requires=fake-hwclock.service
+
+ConditionFileIsExecutable=/anki/bin/vic-init.sh
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh /anki/bin/vic-init.sh
+Group=anki
+UMask=0002
+
+[Install]
+WantedBy=anki-robot.target

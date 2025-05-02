@@ -1,0 +1,389 @@
+#!/bin/bash
+#
+# fault-code-handler
+#
+# Copyright 2018    Anki, Inc.
+# Accepts fault code string on stdin and invokes associated actions, including:
+#
+# - stops anki-robot.target (victor.target)
+# - display fault code on face
+# - (optional) restart anki-robot.target
+#
+
+# Exit on unset variable
+set -u
+
+#
+# Configurable variables may be set in fault-code-handler.env
+#
+: ${ON_FAULT_RESTART:=0}
+: ${ON_FAULT_UPLOAD_LOG:=0}
+: ${ON_FAULT_UPLOAD_TRACE:=0}
+: ${TIMEOUT_SIGTERM_SEC:=3}
+: ${TIMEOUT_RESTART_SEC:=5}
+: ${FAULT_RESTART_COUNT:=0}
+: ${FAULT_RESTART_LIMIT:=2}
+: ${FAULT_RESTART_LIMIT_SEC:=60}
+: ${VERBOSE:=0}
+
+#
+# Magic paths that can't be configured
+PROGRESS_FILE="/run/fault_code.pending"
+SHOWING_FILE="/run/fault_code.showing"
+FAULT_RESTART_COUNT_FILE="/run/fault_restart_count"
+FAULT_RESTART_UPTIME_FILE="/run/fault_restart_uptime"
+DAS_ALLOW_UPLOAD_FILE="/run/das_allow_upload"
+
+FAULT_REPORTS_PATH="/data/fault-reports"
+LOGGER="/bin/logger -t fault-code-handler"
+OUTGOING="/data/data/com.anki.victor/cache/outgoing"
+
+#
+# Log helpers
+#
+function log () {
+  ${LOGGER} -p user.info -- "$*"
+}
+
+function loge () {
+  ${LOGGER} -p user.err -- "$*"
+}
+
+function logv () {
+  if [ $VERBOSE -eq 1 ]; then
+    ${LOGGER} -p user.debug -- "$*"
+  fi
+}
+
+#
+# Return uptime (in seconds) since boot
+#
+# Note that /proc/uptime reports a second value (seconds idle) that must be stripped off
+# Note that /proc/uptime reports fractional seconds, so anything after decimal must be stripped off
+# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/deployment_guide/s2-proc-uptime
+#
+function get_uptime () {
+  uptime="$(/bin/cat /proc/uptime)"
+  uptime="${uptime// */}"
+  uptime="${uptime//.*/}"
+  echo "${uptime}"
+  return 0
+}
+
+log "fault-code-handler start"
+
+# Read up to 7 chars (max code is UINT16_MAX, newline, null) from stdin with a 1 sec timeout
+# If run from systemd, stdin will be our fault_code FIFO socket
+read -r -n 7 -t 1 FAULT_CODE
+
+if [ $? -ne 0 ]; then
+    # read error
+    loge "Unable to read fault code"
+    exit -1
+fi
+
+# remove anything that is not a number
+FAULT_CODE=${FAULT_CODE//[^0-9]/}
+
+if [ -z ${FAULT_CODE} ]; then
+    loge "Empty or invalid fault code"
+    exit -1
+fi
+
+log "Handle fault code ${FAULT_CODE}"
+
+# Ignore zero
+# Nobody should be writing 0 to the fifo, so it probably means
+# the fifo was closed after processes were shutdown
+if [ $FAULT_CODE -eq 0 ]; then
+  log "Nothing to do"
+  exit 0
+fi
+
+if [ -f $PROGRESS_FILE ]; then
+    log "$(basename $0) already in progress"
+    exit 0
+fi
+
+echo $FAULT_CODE > $PROGRESS_FILE
+
+if [ -x /usr/bin/ankitrace ]; then
+  #record lttng trace to temp storage
+  /usr/bin/ankitrace -r
+fi
+
+# Log source, event, i1 to DAS
+/anki/bin/vic-log-event fault-code-handler robot.fault_code '' '' '' '' ${FAULT_CODE}
+
+STOP_DASMGR_ONLY=0
+KILL_CAMERA_AFTER_STOPPING_ROBOT=0
+DONT_DISPLAY_FAULT_CODE=0
+
+# handle error-code specific actions
+case ${FAULT_CODE} in
+70[0-1])
+    # These codes indicate shutdown modes that require vic-robot to stay alive
+    # in order to tell syscon to shutdown. In theory you can try to kill all of
+    # the other processes, but there may not be enough time since power could
+    # be cut by syscon at any moment so instead we just kill vic-dasmgr to make
+    # sure the power_off DAS message is recorded and backed up.
+    #
+    # NOTE: No fault reports, trace data, or logs are captured here since the
+    #       priority is fast shutdown.
+    log "Shutting down. Stopping vic-dasmgr only."
+    STOP_DASMGR_ONLY=1
+    ON_FAULT_RESTART=0
+    DONT_DISPLAY_FAULT_CODE=1
+    ;;
+70[2-5])
+    # Same as above but we DO want to display fault code (images)
+    log "Shutting down. Stopping vic-dasmgr only."
+    STOP_DASMGR_ONLY=1
+    ON_FAULT_RESTART=0
+    ;;
+915)
+    log "kill -ILL vic-engine"
+    PID=$(pidof vic-engine)
+    [ $? -eq 0 ] && kill -ILL $PID
+    ;;
+917)
+    log "kill -ILL vic-anim"
+    PID=$(pidof vic-anim)
+    [ $? -eq 0 ] && kill -ILL $PID
+    ;;
+98[0-1])
+    # These codes indicate issues with the camera
+    # These issues are typically caused by mm-anki-camera hanging
+    # when we try to stop the camera stream on vic-engine
+    # stop. We have to manually kill it and start it again.
+    KILL_CAMERA_AFTER_STOPPING_ROBOT=1
+    ;;
+*)
+    ;;
+esac
+
+# Get a list of services that belong to anki-robot.target
+ANKI_SERVICES=( $(systemctl show --plain -p ConsistsOf anki-robot.target | cut -d= -f2-) )
+
+function wait_until_services_stopped() {
+    RUNNING_PROCS=()
+
+    for i in $(seq 1 ${TIMEOUT_SIGTERM_SEC}); do
+        RUNNING_PROCS=()
+        for SRV in ${ANKI_SERVICES[@]}; do
+            status="`systemctl is-active ${SRV}`"
+            logv "Service ${SRV} is ${status}"
+            case "${status}" in
+            activating|active|deactivating)
+                RUNNING_PROCS+=($SRV)
+                ;;
+            *)
+                ;;
+            esac
+        done
+
+        if [ ${#RUNNING_PROCS[*]} -gt 0 ]; then
+            log "Waiting for ${RUNNING_PROCS[@]}"
+            sleep 1
+        else
+            break
+        fi
+    done
+
+    #
+    # If services do not stop in response to SIGTERM,
+    # force a crash for diagnostics.
+    #
+    if [ ${#RUNNING_PROCS[*]} -gt 0 ]; then
+        log "systemctl kill -s SIGQUIT ${RUNNING_PROCS[@]}"
+        systemctl kill -s SIGQUIT ${RUNNING_PROCS[@]}
+        sleep 1
+    fi
+}
+
+function display_fault_code() {
+    if [ $DONT_DISPLAY_FAULT_CODE -eq 0 ]; then
+        # Display "Vector will restart"?
+        DISPLAY_RESTART=""
+        if [ ${ON_FAULT_RESTART} -eq 1 ]; then
+            case ${FAULT_CODE} in
+            800|913|914|915|916|917|921|923)
+                DISPLAY_RESTART="-r"
+                ;;
+            esac
+        fi
+
+        # If we are already showing a fault code, don't show another one.
+        # Fault code will persist until cleared by /anki/bin/vic-init.sh.
+        if [ ! -f ${SHOWING_FILE} ]; then
+            if [ -x /anki/bin/vic-faultCodeDisplay ]; then
+              log "Display fault code ${FAULT_CODE}"
+              /anki/bin/vic-faultCodeDisplay ${DISPLAY_RESTART} ${FAULT_CODE}
+              echo ${FAULT_CODE} > ${SHOWING_FILE}
+            fi
+        fi
+    fi
+}
+
+#
+# Terminate services with SIGTERM instead of "systemctl stop"
+# to avoid waiting for individual services to stop.
+# Once we have signalled each service, poll status until they stop.
+#
+if [ $STOP_DASMGR_ONLY -eq 1 ]; then
+    ANKI_SERVICES=( "vic-dasmgr" )
+    log "systemctl kill -s SIGTERM vic-dasmgr"
+    systemctl kill -s SIGTERM vic-dasmgr
+    wait_until_services_stopped
+    display_fault_code
+else
+    log "systemctl kill -s SIGTERM ${ANKI_SERVICES[@]}"
+    systemctl kill -s SIGTERM ${ANKI_SERVICES[@]}
+    wait_until_services_stopped
+
+    # Have we reached restart limit?
+    if [ ${ON_FAULT_RESTART} -eq 1 ]; then
+
+      # How many times have we restarted?
+      FAULT_RESTART_COUNT=0
+      if [ -f ${FAULT_RESTART_COUNT_FILE} ]; then
+        FAULT_RESTART_COUNT="$(/bin/cat ${FAULT_RESTART_COUNT_FILE})"
+      fi
+
+      # When did we last perform restart?
+      FAULT_RESTART_UPTIME=0
+      if [ -f ${FAULT_RESTART_UPTIME_FILE} ]; then
+        FAULT_RESTART_UPTIME="$(/bin/cat ${FAULT_RESTART_UPTIME_FILE})"
+      fi
+
+      # If enough time has passed since last restart, clear the restart count
+      uptime="$(get_uptime)"
+      elapsed="$(( uptime - FAULT_RESTART_UPTIME ))"
+      log "${elapsed} seconds elapsed since last restart"
+
+      if [ ${elapsed} -ge ${FAULT_RESTART_LIMIT_SEC} ]; then
+        log "Clear restart count after ${elapsed} seconds"
+        FAULT_RESTART_COUNT=0
+      fi
+
+      log "Restart count ${FAULT_RESTART_COUNT}/${FAULT_RESTART_LIMIT}"
+
+      if [ ${FAULT_RESTART_COUNT} -ge ${FAULT_RESTART_LIMIT} ]; then
+        log "No more restarts allowed"
+        ON_FAULT_RESTART=0
+      fi
+
+    fi
+
+    display_fault_code
+
+    # If report directory does not exist, make it now
+    if [ ! -d ${FAULT_REPORTS_PATH} ]; then
+      log "/bin/mkdir -p ${FAULT_REPORTS_PATH}"
+      /bin/mkdir -p ${FAULT_REPORTS_PATH}
+    fi
+
+    # If outgoing directory does not exist, make it now
+    if [ ! -d ${OUTGOING} ]; then
+      log "/bin/mkdir -p ${OUTGOING}"
+      /bin/mkdir -p ${OUTGOING}
+    fi
+
+    # Do we want to capture fault reports?
+    capture_log=${ON_FAULT_UPLOAD_LOG}
+    capture_trace=${ON_FAULT_UPLOAD_TRACE}
+
+    if [ ! -f ${DAS_ALLOW_UPLOAD_FILE} ]; then
+      capture_log=0
+      capture_trace=0
+    fi
+
+    # Construct a unique identifer for this fault report
+    timestamp=$(/bin/date +"%Y%m%d-%H%M%S")
+    fault_report_id="fault-${FAULT_CODE}-${timestamp}"
+    fault_report_path="${FAULT_REPORTS_PATH}/${fault_report_id}"
+
+    # Create a directory for this fault report?
+    if [ ${capture_log} -gt 0 ] || [ ${capture_trace} -gt 0 ]; then
+      log "/bin/mkdir -p ${fault_report_path}"
+      /bin/mkdir -p ${fault_report_path}
+    fi
+
+    # Capture trace data?
+    if [ ${capture_trace} -gt 0 ]; then
+      log "/usr/bin/ankitrace -z ${fault_report_path}"
+      /usr/bin/ankitrace -z ${fault_report_path}
+    fi
+
+    # Capture log data?
+    if [ ${capture_log} -gt 0 ]; then
+      log "/anki/bin/vic-log-cat > ${fault_report_path}/messages.log"
+      /anki/bin/vic-log-cat > ${fault_report_path}/messages.log
+    fi
+
+    # Do we want to upload the data we just captured?
+    upload_log=${capture_log}
+    upload_trace=${capture_trace}
+
+    # Is this a developer build, just leave it on the disk.
+    anki_version=$(/bin/cat /anki/etc/version)
+    if [[ ${anki_version} =~ .0$ ]]; then
+      upload_log=0
+      upload_trace=0
+    fi
+
+    if [ ${upload_log} -gt 0 ] || [ ${upload_trace} -gt 0 ]; then
+      outgoing_tgz=${OUTGOING}/${fault_report_id}.tar.gz
+      log "/bin/tar cfzp ${outgoing_tgz} -C ${FAULT_REPORTS_PATH} ${fault_report_id}"
+      /bin/tar cfzp ${outgoing_tgz} -C ${FAULT_REPORTS_PATH} ${fault_report_id}
+      log "/bin/rm -rf ${fault_report_path}"
+      /bin/rm -rf ${fault_report_path}
+    fi
+
+fi
+
+if [ $KILL_CAMERA_AFTER_STOPPING_ROBOT -eq 1 ]; then
+  log "Kill and restart mm-anki-camera"
+  systemctl kill -s 9 mm-anki-camera
+  systemctl start mm-anki-camera
+fi
+
+#
+# Read and discard any fault codes that arrived during shutdown,
+# to prevent repeat activation of fault code handler.
+#
+
+logv "Draining input"
+while read -r -t 1 CODE ; do
+  logv "Drained ${CODE}"
+done
+logv "Drained input"
+
+#
+# Restart services?
+#
+if [ $ON_FAULT_RESTART -eq 1 ]; then
+    # Sleep before restart
+    if [ $TIMEOUT_RESTART_SEC -gt 0 ]; then
+        log "Sleep for ${TIMEOUT_RESTART_SEC}"
+        sleep $TIMEOUT_RESTART_SEC
+    fi
+
+    # Update restart count
+    ((++FAULT_RESTART_COUNT))
+    echo ${FAULT_RESTART_COUNT} > ${FAULT_RESTART_COUNT_FILE}
+
+    # Update restart timestamp
+    FAULT_RESTART_UPTIME="$(get_uptime)"
+    echo ${FAULT_RESTART_UPTIME} > ${FAULT_RESTART_UPTIME_FILE}
+
+    # restart processes
+    log "Restart anki-robot.target"
+    systemctl restart anki-robot.target
+fi
+
+#
+# Clean up and exit
+#
+log "fault-code-handler done"
+rm -f $PROGRESS_FILE

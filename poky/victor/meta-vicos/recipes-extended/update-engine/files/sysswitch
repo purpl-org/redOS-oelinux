@@ -1,0 +1,13 @@
+#!/bin/bash
+
+CL="$(cat /proc/cmdline)"
+
+if [[ "${CL}" == *"_a"* ]]; then
+	echo "Rebooting into slot b."
+	bootctl-anki a set_active b
+else
+	echo "Rebooting into slot a."
+	bootctl-anki b set_active a
+fi
+
+reboot

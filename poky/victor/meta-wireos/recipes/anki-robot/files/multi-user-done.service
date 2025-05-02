@@ -1,0 +1,12 @@
+[Unit]
+Description=multi-user.target complete marker
+#Requires=multi-user.target
+#After=multi-user.target
+
+Wants=mount-data.service mm-anki-camera.service mm-qcamera-daemon.service leprop.service btproperty.service ankibluetoothd.service qtid.service qti_system_daemon.service
+After=mount-data.service mm-anki-camera.service mm-qcamera-daemon.service leprop.service btproperty.service ankibluetoothd.service qtid.service qti_system_daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=true
