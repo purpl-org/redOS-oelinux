@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [[ ! -d bootable ]]; then
-	if [[ -d ../bootable ]]; then
+if [[ ! -d poky ]]; then
+	if [[ -d ../poky ]]; then
 		cd ..
 	else
 		echo "run this in the correct directory..........."
