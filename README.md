@@ -1,5 +1,7 @@
 # vicos-oelinux
 
+# Currently in a broken state, do not attempt to build
+
 This repository contains the embedded OS that runs on victor hardware.
 If you are looking for victor embedded firmware, robotics, animation and engine layers checkout [victor](https://github.com/kercre123/victor).
 `vicos-oelinux` *is* the repo you are looking for if you want to create a full OTA. It includes stuff like victor as submodules.
