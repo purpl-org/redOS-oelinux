@@ -35,7 +35,7 @@ if [ -z "${CMDLINE##*anki.dev*}" ]; then
 	is_dev_device=true
 	rampost | tee /dev/rampost.log
 else
-	is_dev_device=false
+	is_dev_device=true
 	rampost | tee /dev/rampost.log
 fi
 
