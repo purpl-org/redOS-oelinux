@@ -25,7 +25,7 @@ cd wire-os
 
 ### Where is my OTA?
 
-`./_build/2.0.1.1.ota`
+`./_build/3.0.1.1.ota`
 
 ## Differences compared to normal Vector FW
 
@@ -37,7 +37,7 @@ cd wire-os
     -   Can be activated in :8888/demo.html
 -   Some Anki-era PRs have been merged
     -   Performances
-        -   He will somewhat randomely do loosepixel and binaryeyes
+        -   He will somewhat randomly do loosepixel and binaryeyes
     -   Better camera gamma correction
         -   He handles too-bright situations much better now
 -   Snowboy wakeword engine
