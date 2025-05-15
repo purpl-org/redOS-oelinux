@@ -33,6 +33,7 @@ do_install:append () {
     # Switch-modder - Allow ssh over rsa
     sed -i '$a PubkeyAcceptedKeyTypes +ssh-rsa' ${UNPACKDIR}/sshd_config ${D}${sysconfdir}/ssh/sshd_config
     sed -i '$a HostKeyAlgorithms +ssh-rsa' ${UNPACKDIR}/sshd_config ${D}${sysconfdir}/ssh/sshd_config
+    sed -i '$a HostKey /etc/ssh/ssh_host_rsa_key' ${UNPACKDIR}/sshd_config ${D}${sysconfdir}/ssh/sshd_config
 
     install -m 0600 ${UNPACKDIR}/ssh_host_rsa_key ${D}${sysconfdir}/ssh/ssh_host_rsa_key
     install -m 0600 ${UNPACKDIR}/ssh_host_dsa_key ${D}${sysconfdir}/ssh/ssh_host_dsa_key
