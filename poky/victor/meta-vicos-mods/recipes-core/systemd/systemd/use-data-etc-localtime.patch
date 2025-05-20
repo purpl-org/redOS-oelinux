@@ -1,0 +1,210 @@
+From d1ad9c25fb19af1d58bf6c9fb30058caff4affc3 Mon Sep 17 00:00:00 2001
+From: Kerigan <kerigancreighton@gmail.com>
+Date: Mon, 19 May 2025 22:01:11 -0500
+Subject: [PATCH] systemd: use /data/etc/localtime instead of /etc/localtime
+
+Signed-off-by: Kerigan <kerigancreighton@gmail.com>
+---
+ src/firstboot/firstboot.c | 12 ++++++------
+ src/nspawn/nspawn.c       | 26 +++++++++++++-------------
+ src/timedate/timedated.c  | 12 ++++++------
+ 3 files changed, 25 insertions(+), 25 deletions(-)
+
+diff --git a/src/firstboot/firstboot.c b/src/firstboot/firstboot.c
+index 48c0b16..031dc8c 100644
+--- a/src/firstboot/firstboot.c
++++ b/src/firstboot/firstboot.c
+@@ -618,15 +618,15 @@ static int process_timezone(int rfd) {
+ 
+         assert(rfd >= 0);
+ 
+-        pfd = chase_and_open_parent_at(rfd, "/etc/localtime",
++        pfd = chase_and_open_parent_at(rfd, "/data/etc/localtime",
+                                        CHASE_AT_RESOLVE_IN_ROOT|CHASE_MKDIR_0755|CHASE_WARN|CHASE_NOFOLLOW,
+                                        &f);
+         if (pfd < 0)
+-                return log_error_errno(pfd, "Failed to chase /etc/localtime: %m");
++                return log_error_errno(pfd, "Failed to chase /data/etc/localtime: %m");
+ 
+         r = should_configure(pfd, f);
+         if (r == 0)
+-                log_debug("Found /etc/localtime, assuming timezone has been configured.");
++                log_debug("Found /data/etc/localtime, assuming timezone has been configured.");
+         if (r <= 0)
+                 return r;
+ 
+@@ -637,7 +637,7 @@ static int process_timezone(int rfd) {
+         if (arg_copy_timezone && r == 0) {
+                 _cleanup_free_ char *s = NULL;
+ 
+-                r = readlink_malloc("/etc/localtime", &s);
++                r = readlink_malloc("/data/etc/localtime", &s);
+                 if (r != -ENOENT) {
+                         if (r < 0)
+                                 return log_error_errno(r, "Failed to read host's /etc/localtime: %m");
+@@ -658,7 +658,7 @@ static int process_timezone(int rfd) {
+         if (isempty(arg_timezone))
+                 return 0;
+ 
+-        e = strjoina("../usr/share/zoneinfo/", arg_timezone);
++        e = strjoina("../../usr/share/zoneinfo/", arg_timezone);
+ 
+         r = symlinkat_atomic_full(e, pfd, f, /* make_relative= */ false);
+         if (r < 0)
+@@ -1228,7 +1228,7 @@ static int process_reset(int rfd) {
+                        "/etc/hostname",
+                        "/etc/machine-id",
+                        "/etc/kernel/cmdline",
+-                       "/etc/localtime") {
++                       "/data/etc/localtime") {
+                 r = reset_one(rfd, p);
+                 if (r < 0)
+                         return r;
+diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
+index 33397fd..a226bad 100644
+--- a/src/nspawn/nspawn.c
++++ b/src/nspawn/nspawn.c
+@@ -1477,7 +1477,7 @@ static int parse_argv(int argc, char *argv[]) {
+                         arg_timezone = timezone_mode_from_string(optarg);
+                         if (arg_timezone < 0)
+                                 return log_error_errno(arg_timezone,
+-                                                       "Failed to parse /etc/localtime mode: %s", optarg);
++                                                       "Failed to parse /data/etc/localtime mode: %s", optarg);
+ 
+                         arg_settings_mask |= SETTING_TIMEZONE;
+                         break;
+@@ -1792,7 +1792,7 @@ int userns_mkdir(const char *root, const char *path, mode_t mode, uid_t uid, gid
+ static const char *timezone_from_path(const char *path) {
+         return PATH_STARTSWITH_SET(
+                         path,
+-                        "../usr/share/zoneinfo/",
++                        "../../usr/share/zoneinfo/",
+                         "/usr/share/zoneinfo/");
+ }
+ 
+@@ -1809,18 +1809,18 @@ static int setup_timezone(const char *dest) {
+         assert(dest);
+ 
+         if (IN_SET(arg_timezone, TIMEZONE_AUTO, TIMEZONE_SYMLINK)) {
+-                r = readlink_malloc("/etc/localtime", &p);
++                r = readlink_malloc("/data/etc/localtime", &p);
+                 if (r == -ENOENT && arg_timezone == TIMEZONE_AUTO)
+                         m = etc_writable() ? TIMEZONE_DELETE : TIMEZONE_OFF;
+                 else if (r == -EINVAL && arg_timezone == TIMEZONE_AUTO) /* regular file? */
+                         m = etc_writable() ? TIMEZONE_COPY : TIMEZONE_BIND;
+                 else if (r < 0) {
+-                        log_warning_errno(r, "Failed to read host's /etc/localtime symlink, not updating container timezone: %m");
+-                        /* To handle warning, delete /etc/localtime and replace it with a symbolic link to a time zone data
++                        log_warning_errno(r, "Failed to read host's /data/etc/localtime symlink, not updating container timezone: %m");
++                        /* To handle warning, delete /data/etc/localtime and replace it with a symbolic link to a time zone data
+                          * file.
+                          *
+                          * Example:
+-                         * ln -s /usr/share/zoneinfo/UTC /etc/localtime
++                         * ln -s /usr/share/zoneinfo/UTC /data/etc/localtime
+                          */
+                         return 0;
+                 } else if (arg_timezone == TIMEZONE_AUTO)
+@@ -1855,7 +1855,7 @@ static int setup_timezone(const char *dest) {
+ 
+                 z = timezone_from_path(p);
+                 if (!z) {
+-                        log_warning("/etc/localtime does not point into /usr/share/zoneinfo/, not updating container timezone.");
++                        log_warning("/data/etc/localtime does not point into /usr/share/zoneinfo/, not updating container timezone.");
+                         return 0;
+                 }
+ 
+@@ -1874,7 +1874,7 @@ static int setup_timezone(const char *dest) {
+                                 return 0;
+                         }
+ 
+-                        what = strjoina("../usr/share/zoneinfo/", z);
++                        what = strjoina("../../usr/share/zoneinfo/", z);
+                         if (symlink(what, where) < 0) {
+                                 log_full_errno(IN_SET(errno, EROFS, EACCES, EPERM) ? LOG_DEBUG : LOG_WARNING,
+                                                errno, "Failed to correct timezone of container, ignoring: %m");
+@@ -1893,14 +1893,14 @@ static int setup_timezone(const char *dest) {
+ 
+                 found = chase(where, dest, CHASE_NONEXISTENT, &resolved, NULL);
+                 if (found < 0) {
+-                        log_warning_errno(found, "Failed to resolve /etc/localtime path in container, ignoring: %m");
++                        log_warning_errno(found, "Failed to resolve /data/etc/localtime path in container, ignoring: %m");
+                         return 0;
+                 }
+ 
+                 if (found == 0) /* missing? */
+                         (void) touch(resolved);
+ 
+-                r = mount_nofollow_verbose(LOG_WARNING, "/etc/localtime", resolved, NULL, MS_BIND, NULL);
++                r = mount_nofollow_verbose(LOG_WARNING, "/data/etc/localtime", resolved, NULL, MS_BIND, NULL);
+                 if (r >= 0)
+                         return mount_nofollow_verbose(LOG_ERR, NULL, resolved, NULL, MS_BIND|MS_REMOUNT|MS_RDONLY|MS_NOSUID|MS_NODEV, NULL);
+ 
+@@ -1909,10 +1909,10 @@ static int setup_timezone(const char *dest) {
+ 
+         case TIMEZONE_COPY:
+                 /* If mounting failed, try to copy */
+-                r = copy_file_atomic("/etc/localtime", where, 0644, COPY_REFLINK|COPY_REPLACE);
++                r = copy_file_atomic("/data/etc/localtime", where, 0644, COPY_REFLINK|COPY_REPLACE);
+                 if (r < 0) {
+                         log_full_errno(IN_SET(r, -EROFS, -EACCES, -EPERM) ? LOG_DEBUG : LOG_WARNING, r,
+-                                       "Failed to copy /etc/localtime to %s, ignoring: %m", where);
++                                       "Failed to copy /data/etc/localtime to %s, ignoring: %m", where);
+                         return 0;
+                 }
+ 
+@@ -1925,7 +1925,7 @@ static int setup_timezone(const char *dest) {
+         /* Fix permissions of the symlink or file copy we just created */
+         r = userns_lchown(where, 0, 0);
+         if (r < 0)
+-                log_warning_errno(r, "Failed to chown /etc/localtime, ignoring: %m");
++                log_warning_errno(r, "Failed to chown /data/etc/localtime, ignoring: %m");
+ 
+         return 0;
+ }
+diff --git a/src/timedate/timedated.c b/src/timedate/timedated.c
+index 40bba14..e660314 100644
+--- a/src/timedate/timedated.c
++++ b/src/timedate/timedated.c
+@@ -265,9 +265,9 @@ static int context_read_data(Context *c) {
+ 
+         r = get_timezone(&t);
+         if (r == -EINVAL)
+-                log_warning_errno(r, "/etc/localtime should be a symbolic link to a time zone data file in /usr/share/zoneinfo/.");
++                log_warning_errno(r, "/data/etc/localtime should be a symbolic link to a time zone data file in /usr/share/zoneinfo/.");
+         else if (r < 0)
+-                log_warning_errno(r, "Failed to get target of /etc/localtime: %m");
++                log_warning_errno(r, "Failed to get target of /data/etc/localtime: %m");
+ 
+         free_and_replace(c->zone, t);
+ 
+@@ -291,22 +291,22 @@ static int context_write_data_timezone(Context *c) {
+ 
+                 if (access("/usr/share/zoneinfo/UTC", F_OK) < 0) {
+ 
+-                        if (unlink("/etc/localtime") < 0 && errno != ENOENT)
++                        if (unlink("/data/etc/localtime") < 0 && errno != ENOENT)
+                                 return -errno;
+ 
+                         return 0;
+                 }
+ 
+-                source = "../usr/share/zoneinfo/UTC";
++                source = "../../usr/share/zoneinfo/UTC";
+         } else {
+-                p = path_join("../usr/share/zoneinfo", c->zone);
++                p = path_join("../../usr/share/zoneinfo", c->zone);
+                 if (!p)
+                         return -ENOMEM;
+ 
+                 source = p;
+         }
+ 
+-        return symlink_atomic(source, "/etc/localtime");
++        return symlink_atomic(source, "/data/etc/localtime");
+ }
+ 
+ static int context_write_data_local_rtc(Context *c) {
+-- 
+2.49.0
+
