@@ -11,12 +11,30 @@ WireOS serves as a nice, stable, and maintained base for Vector CFW.
 - /anki/victor -> [wire-os-victor](https://github.com/os-vector/wire-os-victor) (main)
 - /anki/wired -> [wired](https://github.com/os-vector/wired) (main)
 
+## Update notes:
+
+- **05-20-2025**: you might want to run `./build/clean.sh "connman wpa-supplicant base-files"`
+
 ## Build
 
-Make sure you have Docker installed, and configured so a regular user can use it.
+- Note: you will need a somewhat beefy **x86_64 Linux** machine with at least 16GB of RAM and 100GB of free space.
+
+1. [Install Docker](https://docs.docker.com/engine/install/), git, and wget.
+
+2. Configure it so a regular user can use it:
 
 ```
-git clone https://github.com/os-vector/wire-os --recurse-submodules --shallow-submodules --depth=1
+sudo groupadd docker
+sudo gpasswd -a $USER docker
+newgrp docker
+sudo chown root:docker /var/run/docker.sock
+sudo chmod 660 /var/run/docker.sock
+```
+
+3. Clone and build:
+
+```
+git clone https://github.com/os-vector/wire-os --recurse-submodules
 cd wire-os
 ./build/build.sh -bt <dev/oskr> -bp <boot-passwd> -v <build-increment>
 # boot password not required for dev
@@ -56,3 +74,4 @@ If you want to :P
 
 - delta updates
 - iptables
+- r/o rootfs (due to time zone setting. Anki's /data/etc/localtime patch didn't work)
