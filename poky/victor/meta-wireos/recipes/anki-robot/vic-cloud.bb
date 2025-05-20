@@ -35,6 +35,11 @@ GID_ANKINET   = '2905'
 UID_NET       = "${GID_ANKINET}"
 UID_CLOUD     = "${GID_CLOUD}"
 
+do_clean:append() {
+    s = d.getVar('S')
+    os.system('cd "%s" && rm -rf build/vic-cloud build/vic-gateway' % s)
+}
+
 run_victor() {
   export -n CCACHE_DISABLE
   export CCACHE_DIR="${HOME}/.ccache"
