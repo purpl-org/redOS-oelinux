@@ -13,7 +13,7 @@ WireOS serves as a nice, stable, and maintained base for Vector CFW.
 
 ## Update notes:
 
-- **05-20-2025**: you might want to run `./build/clean.sh "connman wpa-supplicant base-files systemd tzdata"` before building again
+- **05-21-2025**: you might want to run `./build/clean.sh "connman wpa-supplicant base-files systemd tzdata alsa-lib alsa-tools alsa-utils"` before building again
 
 ## Build
 
