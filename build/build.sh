@@ -2,6 +2,9 @@
 
 set -e
 
+# Hidden arguments;
+# 1. -au: enable auto-updates
+
 function usage() {
     echo "$1"
     echo "Usage: ./build/build.sh -bt <dev/oskr> -s -op <OTA-pw> -bp <boot-passwd> -v <build-increment>"
@@ -43,6 +46,16 @@ function check_sign_ota() {
 	fi
 }
 
+function are_you_wire() {
+    echo "Are you Wire?"
+    read -p "(y/n): " yn
+    case $yn in
+        [Yy]* ) echo "Cool." ;;
+        [Nn]* ) echo; echo "Then don't use the -au argument!"; exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+}
+
 while [ $# -gt 0 ]; do
     case "$1" in
         -bt) BOT_TYPE="$2"; shift ;;
@@ -50,6 +63,7 @@ while [ $# -gt 0 ]; do
         -bp) BOOT_PASSWORD="$2"; shift ;;
         -s) DO_SIGN=1 ;;
         -v) BUILD_INCREMENT="$2"; shift ;;
+        -au) are_you_wire; AUTO_UPDATE=1 ;;
         *)
             usage "unknown option: $1"
             exit 1 ;;
@@ -138,6 +152,7 @@ docker run -it \
     "cd $(pwd)/poky && \
     source build/conf/set_bb_env.sh && \
     export ANKI_BUILD_VERSION=$BUILD_INCREMENT && \
+    export AUTO_UPDATE=${AUTO_UPDATE} && \
     ${YOCTO_BUILD_COMMAND} && \
     cd ${DIRPATH}/ota && \
     rm -rf ../_build/*.img ../_build/*.stats ../_build/*.ini ../_build/*.enc && \
