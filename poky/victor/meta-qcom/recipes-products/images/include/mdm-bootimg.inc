@@ -39,7 +39,7 @@ IMAGE_DEV_MANAGER ?= "busybox-static-mdev"
 IMAGE_INIT_MANAGER ?= "sysvinit sysvinit-pidof"
 IMAGE_INITSCRIPTS ?= ""
 
-#ROOTFS_POSTPROCESS_COMMAND:append = " gen_buildprop;"
+ROOTFS_POSTPROCESS_COMMAND:append = " gen_buildprop;"
 ROOTFS_POSTPROCESS_COMMAND:append = "${@bb.utils.contains('DISTRO_FEATURES','flashless','create_squashfs_rootimg;','', d)}"
 EXTRA_IMAGE_FEATURES += "${@bb.utils.contains('DISTRO_FEATURES','ro-rootfs','read-only-rootfs','',d)}"
 gen_buildprop() {
