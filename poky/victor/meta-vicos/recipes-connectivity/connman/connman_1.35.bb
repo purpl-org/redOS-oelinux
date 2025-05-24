@@ -18,5 +18,3 @@ SRC_URI:append_libc-musl = " file://0002-resolve-musl-does-not-implement-res_nin
 
 SRC_URI[md5sum] = "bae37b45ee9b3db5ec8115188f8a7652"
 SRC_URI[sha256sum] = "66d7deb98371545c6e417239a9b3b3e3201c1529d08eedf40afbc859842cf2aa"
-
-RRECOMMENDS:${PN} = "connman-conf"
