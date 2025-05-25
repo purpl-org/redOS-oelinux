@@ -60,20 +60,14 @@ cd wire-os
         -   He will somewhat randomly do loosepixel and binaryeyes
     -   Better camera gamma correction
         -   He handles too-bright situations much better now
--   Snowboy wakeword engine
-    -   Custom wake words!
+-   Picovoice wakeword engine
+    -   Custom wake words in :8080 webserver!
 -   `htop` and `rsync` are embedded
 -   Python 3.13 rather than Python 2
--   Global SSH key ([ssh_root_key](https://raw.githubusercontent.com/kercre123/unlocking-vector/refs/heads/main/ssh_root_key))
+-   Global SSH key: ([ssh_root_key](https://raw.githubusercontent.com/kercre123/unlocking-vector/refs/heads/main/ssh_root_key))
 
 ##  Donate
 
 If you want to :P
 
 [![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/kercre123)
-
-## What isn't there yet
-
-- delta updates
-- iptables
-- r/o rootfs (due to time zone setting. Anki's /data/etc/localtime patch didn't work)
