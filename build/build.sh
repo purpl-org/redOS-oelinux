@@ -2,6 +2,14 @@
 
 set -e
 
+# Hidden arguments;
+# 1. -au: enable auto-updates
+
+# Hidden env vars:
+# 1. I_AM_THE_CREATOR_AND_WANT_TO_MAKE_THE_BUILD_AUTO_UPDATE: set to 1 if you want to inhibit the -au interaction
+
+CREATOR="Wire"
+
 function usage() {
     echo "$1"
     echo "Usage: ./build/build.sh -bt <dev/oskr> -s -op <OTA-pw> -bp <boot-passwd> -v <build-increment>"
@@ -43,6 +51,18 @@ function check_sign_ota() {
 	fi
 }
 
+function are_you_wire() {
+	if [[ "${I_AM_THE_CREATOR_AND_WANT_TO_MAKE_THE_BUILD_AUTO_UPDATE}" != "1" ]]; then
+		echo "Are you $CREATOR?"
+		read -p "(y/n): " yn
+		case $yn in
+			[Yy]* ) echo "Cool." ;;
+			[Nn]* ) echo; echo "Then don't use the -au argument!"; exit 1;;
+			* ) echo "that is not a y or an n."; exit 1;;
+		esac
+	fi
+}
+
 while [ $# -gt 0 ]; do
     case "$1" in
         -bt) BOT_TYPE="$2"; shift ;;
@@ -50,6 +70,7 @@ while [ $# -gt 0 ]; do
         -bp) BOOT_PASSWORD="$2"; shift ;;
         -s) DO_SIGN=1 ;;
         -v) BUILD_INCREMENT="$2"; shift ;;
+        -au) are_you_wire; AUTO_UPDATE=1 ;;
         *)
             usage "unknown option: $1"
             exit 1 ;;
@@ -138,6 +159,7 @@ docker run -it \
     "cd $(pwd)/poky && \
     source build/conf/set_bb_env.sh && \
     export ANKI_BUILD_VERSION=$BUILD_INCREMENT && \
+    export AUTO_UPDATE=${AUTO_UPDATE} && \
     ${YOCTO_BUILD_COMMAND} && \
     cd ${DIRPATH}/ota && \
     rm -rf ../_build/*.img ../_build/*.stats ../_build/*.ini ../_build/*.enc && \
