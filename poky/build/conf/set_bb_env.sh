@@ -299,6 +299,6 @@ export TEMPLATECONF="${WS}/poky/victor/meta-qcom/conf/templates/msm"
 # (BBLAYERS is explicitly blocked from this within OE-Core itself, though...)
 # oe-init-build-env calls oe-buildenv-internal which sets
 # BB_ENV_EXTRAWHITE, append our vars to the list
-export BB_ENV_PASSTHROUGH_ADDITIONS="${BB_ENV_PASSTHROUGH_ADDITIONS} DL_DIR PRODUCT VARIANT FACTORY DEV OSKR QSN BETA ANKI_AMAZON_ENDPOINTS_ENABLED ANKI_BUILD_VERSION"
+export BB_ENV_PASSTHROUGH_ADDITIONS="${BB_ENV_PASSTHROUGH_ADDITIONS} DL_DIR PRODUCT VARIANT FACTORY DEV OSKR QSN BETA ANKI_AMAZON_ENDPOINTS_ENABLED ANKI_BUILD_VERSION AUTO_UPDATE"
 
 list-build-commands
