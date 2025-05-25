@@ -5,6 +5,11 @@ set -e
 # Hidden arguments;
 # 1. -au: enable auto-updates
 
+# Hidden env vars:
+# 1. I_AM_THE_CREATOR_AND_WANT_TO_MAKE_THE_BUILD_AUTO_UPDATE: set to 1 if you want to inhibit the -au interaction
+
+CREATOR="Wire"
+
 function usage() {
     echo "$1"
     echo "Usage: ./build/build.sh -bt <dev/oskr> -s -op <OTA-pw> -bp <boot-passwd> -v <build-increment>"
@@ -47,13 +52,15 @@ function check_sign_ota() {
 }
 
 function are_you_wire() {
-    echo "Are you Wire?"
-    read -p "(y/n): " yn
-    case $yn in
-        [Yy]* ) echo "Cool." ;;
-        [Nn]* ) echo; echo "Then don't use the -au argument!"; exit;;
-        * ) echo "Please answer yes or no.";;
-    esac
+	if [[ "${I_AM_THE_CREATOR_AND_WANT_TO_MAKE_THE_BUILD_AUTO_UPDATE}" != "1" ]]; then
+		echo "Are you $CREATOR?"
+		read -p "(y/n): " yn
+		case $yn in
+			[Yy]* ) echo "Cool." ;;
+			[Nn]* ) echo; echo "Then don't use the -au argument!"; exit 1;;
+			* ) echo "that is not a y or an n."; exit 1;;
+		esac
+	fi
 }
 
 while [ $# -gt 0 ]; do
