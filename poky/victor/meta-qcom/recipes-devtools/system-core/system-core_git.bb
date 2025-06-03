@@ -22,7 +22,7 @@ do_configure:prepend () {
     export LDFLAGS="$(echo $LDFLAGS | sed 's/-fcanon-prefix-map=[^ ]*//g' | sed 's/-fcanon-prefix-map//g' | sed 's/-fmacro-prefix-map=[^ ]*//g' | sed 's/-fdebug-prefix-map=[^ ]*//g' | sed 's/-ffile-prefix-map=[^ ]*//g')"
 }
 
-DEPENDS += "virtual/kernel openssl glib-2.0 libselinux ext4-utils libcutils libbase libmincrypt libutils libunwindandroid"
+DEPENDS += "virtual/kernel openssl glib-2.0 libselinux ext4-utils libcutils libmincrypt libutils libbase libunwindandroid"
 DEPENDS:append_qcs605 = " libsync"
 DEPENDS:append_sdm845 = " libsync"
 
