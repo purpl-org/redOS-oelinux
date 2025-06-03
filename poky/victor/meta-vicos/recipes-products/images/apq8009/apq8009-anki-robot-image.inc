@@ -32,6 +32,7 @@ IMAGE_INSTALL += "libgomp"
 
 IMAGE_INSTALL += "libunwind"
 IMAGE_INSTALL += "liburcu"
+IMAGE_INSTALL += "ankiprofile"
 
 # dev-only things
 IMAGE_INSTALL += "${@oe.utils.conditional('USER_BUILD', '1', '', 'rsync', d)}"
