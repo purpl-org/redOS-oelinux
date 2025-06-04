@@ -8,6 +8,4 @@ do_configure:prepend () {
     export LDFLAGS="$(echo $LDFLAGS | sed 's/-fcanon-prefix-map=[^ ]*//g' | sed 's/-fcanon-prefix-map//g' | sed 's/-fmacro-prefix-map=[^ ]*//g' | sed 's/-fdebug-prefix-map=[^ ]*//g' | sed 's/-ffile-prefix-map=[^ ]*//g')"
 }
 
-addtask prefix_cleanup before do_configure
-
 INSANE_SKIP:${PN} += "32bit-time"
