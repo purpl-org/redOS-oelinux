@@ -10,6 +10,8 @@ DEPENDS = "system-core tinyalsa expat"
 
 PROVIDES += " audio-route audio-utils audio-effects"
 
+CFLAGS += "-Wno-error -Wno-implicit-function-declaration -Wno-strict-prototypes"
+
 FILESPATH =+ "${WORKSPACE}/frameworks/:"
 SRC_URI   = "file://system/media/"
 S = "${WORKDIR}/system/media"
