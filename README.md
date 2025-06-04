@@ -4,6 +4,8 @@ The main repo for WireOS.
 
 WireOS serves as a nice, stable, and maintained base for Vector CFW.
 
+This builds the OS, the /anki programs (`victor`), and creates a final OTA. This repo can be thought of as `wire-os-oelinux`.
+
 ## Submodules
 
 - /poky/poky -> [yoctoproject/poky](https://github.com/yoctoproject/poky) (walnascar)
@@ -66,6 +68,13 @@ cd wire-os
 -   `htop` and `rsync` are embedded
 -   Python 3.13 rather than Python 2
 -   Global SSH key: ([ssh_root_key](https://raw.githubusercontent.com/kercre123/unlocking-vector/refs/heads/main/ssh_root_key))
+
+## Helpful scripts
+
+-	`anki-debug`
+	-	If you are debugging `victor` and want to see backtraces in /var/log/messages, run this to enable those.
+-	`ddn <on/off>`
+	-	Turns on/off DevDoNothing, which makes the bot stand still until shaken.
 
 ##  Donate
 
