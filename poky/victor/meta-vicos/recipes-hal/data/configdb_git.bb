@@ -1,4 +1,4 @@
-inherit qcommon qlicense qprebuilt gccseven
+inherit qcommon qlicense qprebuilt gccseven pkgconfig
 
 DESCRIPTION = "Qualcomm Data Configdb Module"
 DEPENDS = "common dsutils diag xmllib glib-2.0"
@@ -9,7 +9,8 @@ EXTRA_OECONF = "--with-lib-path=${STAGING_LIBDIR} \
                 --with-common-includes=${STAGING_INCDIR} \
                 --with-glib \
                 --with-qxdm \
-                --disable-static \
+                --enable-static=no \
+                --with-sysroot=${STAGING_LIBDIR}/../.. \
                 --disable-dependency-tracking"
 
 EXTRA_OECONF += "PKG_CONFIG_PATH='${STAGING_LIBDIR}/pkgconfig'"

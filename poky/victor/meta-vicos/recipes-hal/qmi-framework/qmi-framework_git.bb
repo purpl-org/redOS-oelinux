@@ -13,7 +13,9 @@ DEPENDS += "glib-2.0"
 
 CFLAGS += "-Wno-implicit-function-declaration"
 
-EXTRA_OECONF = "--with-qmux-libraries=${STAGING_LIBDIR} --with-glib"
+EXTRA_OECONF = "--with-qmux-libraries=${STAGING_LIBDIR} --with-glib \
+               --enable-static=no \
+                --with-sysroot=${STAGING_LIBDIR}/../.."
 
 INITSCRIPT_NAME = "init_irsc_util"
 INITSCRIPT_PARAMS = "start 29 2 3 4 5 . stop 71 0 1 6 ."

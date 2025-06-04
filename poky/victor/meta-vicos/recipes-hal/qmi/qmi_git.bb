@@ -133,9 +133,8 @@ EOF
 }
 
 EXTRA_OECONF = "--with-qxdm \
-                --with-common-includes=${STAGING_INCDIR}"
+                --with-common-includes=${STAGING_INCDIR} \
+                --enable-static=no \
+                --with-sysroot=${STAGING_LIBDIR}/../.."
 
 EXTRA_OECONF:append_msm8960 = " --enable-auto-answer=yes"
-
-INSANE_SKIP:${PN} += "rpaths"
-INSANE_SKIP:${PN} += "ldflags"

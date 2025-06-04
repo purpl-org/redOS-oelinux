@@ -16,6 +16,8 @@ BASEPRODUCT = "${@d.getVar('PRODUCT', False)}"
 EXTRA_OECONF = "--with-lib-path=${STAGING_LIBDIR} \
                 --with-glib \
                 --enable-target=${BASEMACHINE} \
+                --enable-static=no \
+                --with-sysroot=${STAGING_LIBDIR}/../.. \
                 --enable-rome=${BASEPRODUCT} \
                "
 

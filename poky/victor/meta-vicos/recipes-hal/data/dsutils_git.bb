@@ -13,6 +13,8 @@ EXTRA_OECONF = "--with-lib-path=${STAGING_LIBDIR} \
                 --with-glib \
                 --with-qxdm \
                 --with-sanitized-headers=${STAGING_KERNEL_BUILDDIR}/usr/include \
+                --enable-static=no \
+                --with-sysroot=${STAGING_LIBDIR}/../.. \
                 --enable-target=${BASEMACHINE}"
 
 CFLAGS += "-I${STAGING_INCDIR}/cutils"

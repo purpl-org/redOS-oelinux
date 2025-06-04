@@ -24,6 +24,8 @@ BASEPRODUCT = "${@d.getVar('PRODUCT', False)}"
 EXTRA_OECONF = "--with-common-includes="${WORKSPACE}/vendor/qcom/opensource/bluetooth/hal/include/" \
                 --with-lib-path=${STAGING_LIBDIR} \
                 --enable-target=${BASEMACHINE} \
+                --enable-static=no \
+                --with-sysroot=${STAGING_LIBDIR}/../.. \
                 --enable-rome=${BASEPRODUCT} \
                 --with-glib \
                "

@@ -6,6 +6,8 @@ PR = "r0"
 DEPENDS = "common diag dsutils configdb qmi qmi-framework"
 
 EXTRA_OECONF = "--with-lib-path=${STAGING_LIBDIR} \
+                --enable-static=no \
+                --with-sysroot=${STAGING_LIBDIR}/../.. \
                 --with-common-includes=${STAGING_INCDIR} \
                 --with-qxdm"
 

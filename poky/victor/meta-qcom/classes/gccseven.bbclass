@@ -39,7 +39,10 @@ python __anonymous() {
         d.setVar('LDFLAGS:remove', " ".join(bad_ld))
 }
 
-CFLAGS:append = " --sysroot=${STAGING_LIBDIR}/../.. "
-CXXFLAGS:append = " --sysroot=${STAGING_LIBDIR}/../.. "
+CFLAGS:prepend = " --sysroot=${STAGING_LIBDIR}/../.. "
+CXXFLAGS:prepend = " --sysroot=${STAGING_LIBDIR}/../.. "
+LDFLAGS:prepend = " --sysroot=${STAGING_LIBDIR}/../.. "
 
 INSANE_SKIP:${PN} += "32bit-time"
+INSANE_SKIP:${PN} += "rpaths"
+INSANE_SKIP:${PN} += "ldflags"

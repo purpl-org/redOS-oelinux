@@ -225,6 +225,7 @@ function clean-oskr() {
   export VARIANT=perf
   export PRODUCT=robot
   export OSKR=1
+  wire-clean
   cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine update-engine
 }
 
@@ -234,6 +235,7 @@ function clean-dev() {
   export DISTRO=msm-perf
   export VARIANT=perf
   export PRODUCT=robot
+  wire-clean
   cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine update-engine
 }
 
@@ -244,6 +246,7 @@ function clean-dev-cloudless() {
   export VARIANT=perf
   export PRODUCT=robot
   export CLOUDLESS=1
+  wire-clean
   cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine update-engine vic-cloudless
 }
 
@@ -253,7 +256,16 @@ function clean-prod() {
   export DISTRO=msm-user
   export VARIANT=perf
   export PRODUCT=robot
+  wire-clean
   cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine
+}
+
+function wire-clean() {
+	if [[ -f ${WS}/wire-cleaning ]]; then
+		echo "Cleaning file detected, cleaning: $(cat ${WS}/wire-cleaning)"
+		cdbitbake -c cleanall $(cat ${WS}/wire-cleaning)
+		rm -f ${WS}/wire-cleaning
+	fi
 }
 
 # Utility commands
