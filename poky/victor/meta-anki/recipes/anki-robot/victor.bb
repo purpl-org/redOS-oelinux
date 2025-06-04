@@ -40,7 +40,7 @@ GID_BLUETOOTH = '2904'
 GID_ANKINET   = '2905'
 GID_CLOUD     = '888'
 GID_CAMERA    = '2907'
-GID_SYSTEM    = '1001'
+GID_SYSTEM    = '1000'
 
 # Add groups
 GROUPADD_PARAM:${PN} = " -g ${GID_ANKI} anki; \

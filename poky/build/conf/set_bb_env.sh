@@ -210,7 +210,7 @@ function build-dev() {
   build-victor-robot-perf-image
 }
 
-function build-dev-cloudless() {
+function build-devcloudless() {
   build-8009-robot-perf-cloudless-image
 }
 
@@ -226,7 +226,7 @@ function clean-oskr() {
   export PRODUCT=robot
   export OSKR=1
   wire-clean
-  cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine update-engine
+  cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine update-engine wireutils
 }
 
 function clean-dev() {
@@ -236,10 +236,10 @@ function clean-dev() {
   export VARIANT=perf
   export PRODUCT=robot
   wire-clean
-  cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine update-engine
+  cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine update-engine wireutils
 }
 
-function clean-dev-cloudless() {
+function clean-devcloudless() {
   unset_bb_env
   export MACHINE=apq8009-robot
   export DISTRO=msm-perf
@@ -247,7 +247,7 @@ function clean-dev-cloudless() {
   export PRODUCT=robot
   export CLOUDLESS=1
   wire-clean
-  cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine update-engine vic-cloudless
+  cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine update-engine vic-cloudless wireutils
 }
 
 function clean-prod() {
@@ -257,7 +257,7 @@ function clean-prod() {
   export VARIANT=perf
   export PRODUCT=robot
   wire-clean
-  cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine
+  cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf prop-qti vic-engine wireutils
 }
 
 function wire-clean() {
