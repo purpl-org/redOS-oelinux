@@ -1,4 +1,4 @@
-inherit qcommon qprebuilt qlicense
+inherit qcommon qprebuilt qlicense gccseven
 
 DESCRIPTION = "adie rtac Library and calibiration files"
 PR = "r3"

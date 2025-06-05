@@ -1,4 +1,4 @@
-inherit qcommon qlicense qprebuilt
+inherit qcommon qlicense qprebuilt gccseven
 
 DESCRIPTION = "acdb mapper Library"
 PR = "r2"

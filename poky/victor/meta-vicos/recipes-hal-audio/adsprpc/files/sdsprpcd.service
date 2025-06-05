@@ -4,14 +4,12 @@
 #
 
 [Unit]
-Description=mdsprpc Service
-SourcePath=/usr/qtiroot/usr/bin/mdsprpcd
-After=setup-qtiroot.service
-Requires=setup-qtiroot.service
+Description=sdsprpc Service
+SourcePath= /usr/bin/sdsprpcd
 
 [Service]
 Restart=yes
-ExecStart=/usr/bin/qtirun /usr/bin/mdsprpcd
+ExecStart= /usr/bin/sdsprpcd
 
 [Install]
 WantedBy=multi-user.target

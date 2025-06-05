@@ -1,4 +1,4 @@
-inherit qcommon qlicense qprebuilt
+inherit qcommon qlicense qprebuilt gccseven
 
 DESCRIPTION = "acdb-fts Library"
 PR = "r0"
@@ -8,10 +8,10 @@ S = "${WORKDIR}/audio/mm-audio/audio-acdb-util/acdb-fts"
 
 DEPENDS = "audcal"
 
-do_install_append () {
+do_install:append () {
   cp ${D}/${libdir}/libacdb_fts.so ${D}/${libdir}/libacdb-fts.so
 }
 
-FILES_${PN}-dbg  = "${libdir}/.debug/*"
-FILES_${PN}      = "${libdir}/*.so ${libdir}/*.so.* ${sysconfdir}/* ${libdir}/pkgconfig/*"
-FILES_${PN}-dev  = "${libdir}/*.la ${includedir}"
+FILES:${PN}-dbg  = "${libdir}/.debug/*"
+FILES:${PN}      = "${libdir}/*.so ${libdir}/*.so.* ${sysconfdir}/* ${libdir}/pkgconfig/*"
+FILES:${PN}-dev  = "${libdir}/*.la ${includedir}"

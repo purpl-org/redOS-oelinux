@@ -1,23 +1,21 @@
-inherit autotools pkgconfig
+inherit autotools pkgconfig gccseven
 
 DESCRIPTION = "audiohal"
 SECTION = "multimedia"
-LICENSE = "BSD"
-LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/\
-${LICENSE};md5=3775480a712fc46a69647678acb234cb"
+LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/BSD-3-Clause;md5=550794465ba0ec5312d6919e203a55f9"
+LICENSE = "BSD-3-Clause"
 
 FILESPATH =+ "${WORKSPACE}/:"
 SRC_URI  = "file://hardware/qcom/audio/"
 SRC_URI += "file://${BASEMACHINE}/"
 
-S = "${WORKDIR}/hardware/qcom/audio/"
+S = "${WORKDIR}/hardware/qcom/audio"
 PR = "r0"
 
 DEPENDS = "glib-2.0 tinycompress tinyalsa expat system-media libhardware acdbloader"
-#DEPENDS:append_apq8098 = " audio-qaf audio-parsers audio-qap-wrapper audio-ip-handler"
 
-#apq8098 doesn't need surround sound recording
-#DEPENDS:remove_apq8098 = "surround-sound-3mic"
+LDFLAGS += " -lm "
+CFLAGS += "-Wno-error"
 
 EXTRA_OEMAKE = "DEFAULT_INCLUDES= CPPFLAGS="-I. -I${STAGING_KERNEL_BUILDDIR}/usr/include -I${STAGING_INCDIR}/surround_sound_3mic -I${STAGING_INCDIR}/sound_trigger""
 EXTRA_OECONF = "--with-sanitized-headers=${STAGING_KERNEL_BUILDDIR}/usr/include"
@@ -54,15 +52,7 @@ EXTRA_OECONF += "AUDIO_FEATURE_ENABLED_HDMI_PASSTHROUGH=true"
 EXTRA_OECONF += "AUDIO_FEATURE_ENABLED_KEEP_ALIVE=true"
 EXTRA_OECONF += "AUDIO_FEATURE_ENABLED_APTX_DECODER=true"
 EXTRA_OECONF += "AUDIO_FEATURE_ENABLED_GEF_SUPPORT=true"
-#EXTRA_OECONF_append_apq8098 = " AUDIO_FEATURE_ENABLED_QAF=true"
-#EXTRA_OECONF_append_apq8098 = " AUDIO_FEATURE_ADSP_HDLR_ENABLED=true"
-#EXTRA_OECONF_append_apq8098 = " AUDIO_FEATURE_ENABLED_SPLIT_A2DP=true"
-#EXTRA_OECONF_append_apq8098 = " AUDIO_FEATURE_IP_HDLR_ENABLED=true"
-#EXTRA_OECONF_append_apq8098 = " AUDIO_FEATURE_ENABLED_AUDIO_HW_LOOPBACK=true"
-#EXTRA_OECONF_append_apq8098 = " AUDIO_FEATURE_ENABLED_PARSER=true"
-#EXTRA_OECONF_append_apq8098 = " AUDIO_FEATURE_ENABLED_DTSHD_PARSER=true"
 EXTRA_OECONF += "AUDIO_FEATURE_ENABLED_SSR=false"
-#EXTRA_OECONF_append_apq8098 = " AUDIO_FEATURE_ENABLED_QAP=true"
 
 do_install:append() {
    if [ -d "${WORKDIR}/${BASEMACHINE}" ] && [ $(ls -1  ${WORKDIR}/${BASEMACHINE} | wc -l) -ne 0 ]; then

@@ -1,4 +1,4 @@
-inherit autotools qcommon qprebuilt qlicense
+inherit autotools qcommon qprebuilt qlicense gccseven
 
 DESCRIPTION = "acdb loader Library"
 PR = "r7"
@@ -17,11 +17,6 @@ do_install:append(){
 EXTRA_OECONF += "--with-sanitized-headers=${STAGING_KERNEL_BUILDDIR}/usr/include \
                  --with-glib \
                  --enable-target=${BASEMACHINE}"
-
-#EXTRA_OEMAKE_apq8053 = "AM_CFLAGS="-D AUDIO_USE_SYSTEM_HEAP_ID""
-#EXTRA_OEMAKE_apq8017 = "AM_CFLAGS="-D AUDIO_USE_SYSTEM_HEAP_ID""
-#EXTRA_OEMAKE_apq8098 = "AM_CFLAGS="-D AUDIO_USE_SYSTEM_HEAP_ID""
-#EXTRA_OEMAKE_apq8096 = "AM_CFLAGS="-D AUDIO_USE_SYSTEM_HEAP_ID""
 
 SOLIBS = ".so"
 FILES_SOLIBSDEV = ""

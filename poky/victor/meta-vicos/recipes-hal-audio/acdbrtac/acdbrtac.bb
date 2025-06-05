@@ -1,4 +1,4 @@
-inherit qcommon qprebuilt qlicense
+inherit qcommon qprebuilt qlicense gccseven
 
 DESCRIPTION = "acdb rtac Library"
 PR = "r3"
