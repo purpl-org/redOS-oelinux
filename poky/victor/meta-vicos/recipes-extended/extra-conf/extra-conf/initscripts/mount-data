@@ -180,7 +180,6 @@ case "$1" in
 
     # Always create userdata
     make_userdata
-    mount --rbind /data /usr/qtiroot/data
 
     # Set up our strange time zone solution
     mkdir -p /data/etc
@@ -198,7 +197,6 @@ case "$1" in
   stop )
     echo "Unmounting /data"
     sync
-    umount /usr/qtiroot/data
     umount /data
     cryptsetup luksClose userdata
     if test -e $WIPE_COOKIE; then

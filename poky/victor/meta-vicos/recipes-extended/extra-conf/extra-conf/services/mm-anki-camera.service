@@ -1,6 +1,6 @@
 [Unit]
 Description=Anki Camera Service
-SourcePath=/usr/qtiroot/usr/bin/mm-anki-camera
+SourcePath=/usr/bin/mm-anki-camera
 Requires=mm-qcamera-daemon.service
 After=mm-qcamera-daemon.service
 

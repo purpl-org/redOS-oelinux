@@ -257,7 +257,7 @@ function clean-prod() {
   export VARIANT=perf
   export PRODUCT=robot
   wire-clean
-  cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf extra-conf vic-engine wireutils wlan-opensource
+  cdbitbake -c cleanall victor wired vic-cloud core-image-anki-initramfs rampost anki-version machine-robot-image system-conf extra-conf vic-engine update-engine wireutils wlan-opensource
 }
 
 function wire-clean() {
