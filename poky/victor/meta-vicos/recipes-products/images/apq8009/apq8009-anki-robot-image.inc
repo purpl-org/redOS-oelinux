@@ -52,9 +52,8 @@ IMAGE_INSTALL += "init-audio"
 IMAGE_INSTALL += "mm-camera"
 #IMAGE_INSTALL += "rb-camera"
 IMAGE_INSTALL += "ankibluetoothd"
-IMAGE_INSTALL:remove = "busybox"
+IMAGE_INSTALL += "busybox"
 
-# WHY ISN'T THIS PART OF COREUTILS :(
 IMAGE_INSTALL += "grep"
 IMAGE_INSTALL += "procps"
 IMAGE_INSTALL += "net-tools"
