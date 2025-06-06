@@ -52,6 +52,7 @@ IMAGE_INSTALL += "init-audio"
 IMAGE_INSTALL += "mm-camera"
 #IMAGE_INSTALL += "rb-camera"
 IMAGE_INSTALL += "ankibluetoothd"
+IMAGE_INSTALL:remove = "busybox"
 
 IMAGE_INSTALL += "syslog-ng"
 IMAGE_INSTALL += "logrotate"

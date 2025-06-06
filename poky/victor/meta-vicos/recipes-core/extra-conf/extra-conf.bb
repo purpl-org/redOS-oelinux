@@ -39,7 +39,7 @@ do_install () {
 	#ln -sf /usr/lib/systemd/system/btproperty.service ${D}/usr/lib/systemd/system/multi-user.target.wants/
 	#ln -sf /usr/lib/systemd/system/leprop.service ${D}/usr/lib/systemd/system/multi-user.target.wants/
 	ln -sf /usr/lib/systemd/system/mount-data.service ${D}/usr/lib/systemd/system/local-fs.target.requires/
-	#ln -sf /usr/lib/systemd/system/partition-links.service ${D}/usr/lib/systemd/system/multi-user.target.wants/
+	ln -sf /usr/lib/systemd/system/partition-links.service ${D}/usr/lib/systemd/system/multi-user.target.wants/
 	#ln -sf /usr/lib/systemd/system/setup-persist.service ${D}/usr/lib/systemd/system/multi-user.target.wants/
 }
 
