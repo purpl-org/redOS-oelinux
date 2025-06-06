@@ -54,6 +54,11 @@ IMAGE_INSTALL += "mm-camera"
 IMAGE_INSTALL += "ankibluetoothd"
 IMAGE_INSTALL:remove = "busybox"
 
+# WHY ISN'T THIS PART OF COREUTILS :(
+IMAGE_INSTALL += "grep"
+IMAGE_INSTALL += "procps"
+IMAGE_INSTALL += "net-tools"
+
 IMAGE_INSTALL += "syslog-ng"
 IMAGE_INSTALL += "logrotate"
 IMAGE_INSTALL += "connman"
