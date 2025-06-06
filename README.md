@@ -19,6 +19,7 @@ This builds the OS, the /anki programs (`victor`), and creates a final OTA. This
 - **05-24-2025**: `./build/clean.sh "connman wpa-supplicant fake-hwclock initscript-anki"`
 - **05-24-2025 again**: `./build/clean.sh "ethtool iptables-persistent"`
 - **06-02-2025**: `./build/clean.sh "system-core"`
+- **06-05-2025**: `./build/clean.sh "lvm2 libpam packagegroup-core-base-utils"`
 
 ## Build
 
@@ -50,6 +51,12 @@ cd wire-os
 
 `./_build/3.0.1.1.ota`
 
+##  Donate
+
+If you want to :P
+
+[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/kercre123)
+
 ## Differences compared to normal Vector FW
 
 -   New OS base
@@ -76,8 +83,17 @@ cd wire-os
 -	`ddn <on/off>`
 	-	Turns on/off DevDoNothing, which makes the bot stand still until shaken.
 
-##  Donate
+## Proprietary software notes
 
-If you want to :P
+-	This repo contains lots of proprietary Qualcomm code and prebuilt software.
+-	After a stupid amount of work, I have most HAL programs compiling under GCC 7.5.0 in Yocto.
+-	This is only for audio and BLE. For camera, I decided to just copy in those binaries (mm-camera recipe).
+-	If you want to change the code in mm-anki-camera or mm-qcamera-daemon for whatever reason, you'll have to clone vicos-oelinux-nosign, change the code there, compile it in there, then pack the built binaries into a --bzip2 tar and put it into prebuilt_HY11/mm-camera.
+	-	Why am I not having Yocto build them? This is because I would have to add ~2GB of code to the repo, I would have to figure out how to get Qualcomm's ancient "SDLLVM" compiler working, and because the binaries are stable enough.
 
-[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/kercre123)
+## How this upgrade was done
+
+-	Much work upgrading Yocto recipes.
+-	Most of the software is compiling with Yocto's GCC 14 or the Clang 18.1.8 toolchain I built, but there are some exceptions which are compiled with a GCC 7.5.0 compiler.
+-	These exceptions include linux-msm (kernel), all the Qualcomm HAL programs, and ALSA (it didn't work right with the kernel when compiled with GCC 14).
+-	Some recipes are still somewhat old - these include wpa_supplicant and connman (I had issues with SAE)
