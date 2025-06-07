@@ -165,7 +165,7 @@ if [[ -z $(docker images -q vic-yocto-builder-4) ]]; then
 else
 	echo "Reusing vic-yocto-builder-4"
 fi
-docker run -it \
+docker run -it --rm \
     -v $(pwd)/anki-deps:/home/$USER/.anki \
     -v $(pwd):$(pwd) \
     -v $(pwd)/build/cache:/home/$USER/.ccache \
