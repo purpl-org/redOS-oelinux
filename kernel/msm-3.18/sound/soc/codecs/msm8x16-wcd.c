@@ -6198,7 +6198,7 @@ static int msm8x16_wcd_spmi_probe(struct spmi_device *spmi)
 		__func__, __LINE__,  spmi->sid);
 
 	adsp_state = apr_get_subsys_state();
-	if (adsp_state == APR_SUBSYS_DOWN) {
+	if (adsp_state != APR_SUBSYS_LOADED) {
 		dev_dbg(&spmi->dev, "Adsp is not loaded yet %d\n",
 				adsp_state);
 		return -EPROBE_DEFER;
