@@ -71,6 +71,29 @@ function are_you_wire() {
 	fi
 }
 
+function errorMsg() {
+        echo -e "\033[1;31m${1}\033[0m"
+}
+
+function is_victor_there_and_compatible() {
+	if [[ ! -d anki/victor/engine ]]; then
+		errorMsg "anki/victor/engine not found. You likely don't have the victor submodule correctly configured."
+		exit 1
+	fi
+	VICTOR_COMPAT="$(cat anki/victor/VICTOR_COMPAT_VERSION)"
+	OELINUX_COMPAT="$(cat VICTOR_COMPAT_VERSION)"
+	if [[ ! "${VICTOR_COMPAT}" == "${OELINUX_COMPAT}" ]]; then
+		errorMsg "OELinux and victor compat versions are not the same."
+		echo
+		errorMsg "victor: ${VICTOR_COMPAT}"
+		errorMsg "OELinux: ${OELINUX_COMPAT}"
+		echo
+		errorMsg "Make sure you have synced all WireOS changes into your OS."
+		exit 1
+	fi
+	echo "OELinux and victor compat versions are the same"
+}
+
 while [ $# -gt 0 ]; do
     case "$1" in
         -bt) BOT_TYPE="$2"; shift ;;
@@ -85,6 +108,8 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
+
+is_victor_there_and_compatible
 
 if [[ "$BOT_TYPE" != "oskr" && "$BOT_TYPE" != "dev" && "$BOT_TYPE" != "prod" && "$BOT_TYPE" != "devcloudless" ]]; then
     usage "BOT_TYPE (-bt) should be 'oskr' or 'dev', got: $BOT_TYPE"
