@@ -10,6 +10,9 @@ set -e
 
 CREATOR="Wire"
 
+CURRENT_CONTAINER_NAME="vic-yocto-builder-6"
+OLD_CONTAINER_NAME="vic-yocto-builder-5"
+
 function usage() {
     echo "$1"
     echo "Usage: ./build/build.sh -bt <dev/oskr/devcloudless> -s -op <OTA-pw> -bp <boot-passwd> -v <build-increment>"
@@ -111,6 +114,7 @@ echo "All checks passed. Building."
 
 mkdir -p build/cache
 mkdir -p build/gocache
+mkdir -p build/usercache
 
 echo "Getting deps (if needed)..."
 ./build/deps.sh
@@ -157,31 +161,32 @@ if [[ $DO_SIGN == 1 ]]; then
     export DO_SIGN=$DO_SIGN
 fi
 
-if [[ ! -z $(docker images -q vic-yocto-builder-4) ]]; then
+if [[ ! -z $(docker images -q ${OLD_CONTAINER_NAME}) ]]; then
 	echo "Purging old docker containers... this might take a while"
-	docker ps -a --filter "ancestor=vic-yocto-builder-4" -q | xargs -r docker rm -f
-	docker rmi -f $(docker images --filter "reference=vic-yocto-builder-4*" --format '{{.ID}}')
-	echo
-	echo -e "\033[5m\033[1m\033[31mOld Docker builder detected on system. If you have built victor or wire-os many times, it is recommended you run:\033[0m"
-	echo
-	echo -e "\033[1m\033[36mdocker system prune -a --volumes\033[0m"
-	echo
-	echo -e "\033[32mPrevious versions of wire-os did not include a --rm flag in the docker run command. This means you probably have wasted space which can be cleared out with the above command.\033[0m"
-	echo -e "\033[32mContinuing in 10 seconds...\033[0m"
-	sleep 10
+	docker ps -a --filter "ancestor=${OLD_CONTAINER_NAME}" -q | xargs -r docker rm -f
+	docker rmi -f $(docker images --filter "reference=${OLD_CONTAINER_NAME}*" --format '{{.ID}}')
+	#echo
+	#echo -e "\033[5m\033[1m\033[31mOld Docker builder detected on system. If you have built victor or wire-os many times, it is recommended you run:\033[0m"
+	#echo
+	#echo -e "\033[1m\033[36mdocker system prune -a --volumes\033[0m"
+	#echo
+	#echo -e "\033[32mPrevious versions of wire-os did not include a --rm flag in the docker run command. This means you probably have wasted space which can be cleared out with the above command.\033[0m"
+	#echo -e "\033[32mContinuing in 10 seconds...\033[0m"
+	#sleep 10
 fi
 
-if [[ -z $(docker images -q vic-yocto-builder-5) ]]; then
-	docker build --build-arg DIR_PATH="${DIRPATH}" --build-arg USER_NAME=$USER --build-arg UID=$(id -u $USER) --build-arg GID=$(id -u $USER) -t vic-yocto-builder-5 build/
+if [[ -z $(docker images -q ${CURRENT_CONTAINER_NAME}) ]]; then
+	docker build --build-arg DIR_PATH="${DIRPATH}" --build-arg USER_NAME=$USER --build-arg UID=$(id -u $USER) --build-arg GID=$(id -u $USER) -t ${CURRENT_CONTAINER_NAME} build/
 else
-	echo "Reusing vic-yocto-builder-5"
+	echo "Reusing ${CURRENT_CONTAINER_NAME}"
 fi
 docker run -it --rm \
     -v $(pwd)/anki-deps:/home/$USER/.anki \
     -v $(pwd):$(pwd) \
     -v $(pwd)/build/cache:/home/$USER/.ccache \
     -v $(pwd)/build/gocache:/home/$USER/go \
-    vic-yocto-builder-5 bash -c \
+    -v $(pwd)/build/usercache:/home/$USER/.cache \
+    ${CURRENT_CONTAINER_NAME} bash -c \
     "cd $(pwd)/poky && \
     source build/conf/set_bb_env.sh && \
     export ANKI_BUILD_VERSION=$BUILD_INCREMENT && \
