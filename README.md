@@ -95,6 +95,8 @@ If you want to :P
 	-	If you are debugging `victor` and want to see backtraces in /var/log/messages, run this to enable those.
 -	`ddn [on/off]`
 	-	Turns on/off DevDoNothing, which makes the bot stand still until shaken.
+-	`reonboard`
+	-	Puts him back into onboarding mode without fully clearing user data
 -	`vmesg [-c|-t] <grep args>`
 	-	A wrapper for cat/tail /var/log/messages:
 
