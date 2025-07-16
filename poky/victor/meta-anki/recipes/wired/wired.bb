@@ -18,6 +18,7 @@ do_install:append () {
    fi
 }
 
+RDEPENDS:${PN} += "victor"
 FILES:${PN} += "${systemd_unitdir}/system/"
 SYSTEMD_SERVICE:${PN} = "${SERVICE_FILE}"
 
