@@ -145,6 +145,7 @@ echo "All checks passed. Building."
 mkdir -p build/cache
 mkdir -p build/gocache
 mkdir -p build/usercache
+mkdir -p anki-deps
 
 echo "Getting deps (if needed)..."
 ./build/deps.sh
