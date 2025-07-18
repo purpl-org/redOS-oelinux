@@ -102,6 +102,8 @@ If you want to :P
 	-	Puts him back into onboarding mode without fully clearing user data
 -	`vmesg [-c|-t] <grep args>`
 	-	A wrapper for cat/tail /var/log/messages:
+-	`temper`
+	-	Simple script which tells you CPU temps
 
 ```
 usage: vmesg [-t|-c] <grep args>
