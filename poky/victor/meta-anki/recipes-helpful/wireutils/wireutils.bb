@@ -29,7 +29,7 @@ do_install() {
 FILES:${PN} = "${sbindir}/ddn \
                ${sbindir}/anki-debug \
                ${sbindir}/vmesg \
-               ${sbindir}/reonboard \"
+               ${sbindir}/reonboard \
                ${sbindir}/temper"
 
 RDEPENDS:${PN} = "bash"
