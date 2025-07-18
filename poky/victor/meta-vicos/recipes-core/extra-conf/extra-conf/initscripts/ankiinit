@@ -11,7 +11,7 @@ echo 0 > /sys/kernel/debug/msm-bus-dbg/shell-client/update_request
 echo 1 > /sys/kernel/debug/msm-bus-dbg/shell-client/mas
 echo 512 > /sys/kernel/debug/msm-bus-dbg/shell-client/slv
 echo 0 > /sys/kernel/debug/msm-bus-dbg/shell-client/ab
-echo active clk2 0 1 max 500000 > /sys/kernel/debug/rpm_send_msg/message # Max RAM freq in KHz = 500MHz
+echo active clk2 0 1 max 400000 > /sys/kernel/debug/rpm_send_msg/message # Max RAM freq in KHz = 500MHz
 echo 1 > /sys/kernel/debug/msm-bus-dbg/shell-client/update_request
 #End clock speed limits
 
