@@ -1,23 +1,19 @@
-# WireOS
+# redOS-oelinux
 
-**The main repo for WireOS.**
-
-WireOS serves as a nice, stable, and maintained base for Vector CFW.
-
-This builds the OS, the /anki programs (`wire-os-victor`), and puts it all into a final OTA. This repo can be thought of as `wire-os-oelinux`.
+This builds the OS, the /anki programs (`redOS`), and puts it all into a final OTA.
 
 ## Submodules
 
 - /poky/poky -> [yoctoproject/poky](https://github.com/yoctoproject/poky) (walnascar)
 - /poky/meta-openembedded -> [openembedded/meta-openembedded](https://github.com/openembedded/meta-openembedded) (walnascar)
-- /anki/victor -> [wire-os-victor](https://github.com/os-vector/wire-os-victor) (main)
+- /anki/victor -> [redOS](https://github.com/purpl-org/redOS) (main)
   - Where all the personality code lives - the README there has more info
 - /anki/wired -> [wired](https://github.com/os-vector/wired) (main)
   - Little webserver with configuration options
 
 ## Prebuilt OTA:
 
-WireOS is in the dropdown box in [https://devsetup.froggitti.net/](https://devsetup.froggitti.net/). Put your unlocked bot into recovery mode (hold the button for 15 seconds on the charger), head to the site, choose wireOS, then go through the process.
+redOS is in the dropdown box in [https://devsetup.froggitti.net/](https://devsetup.froggitti.net/). Put your unlocked bot into recovery mode (hold the button for 15 seconds on the charger), head to the site, choose redOS-oelinux, then go through the process.
 
 ## Build
 
@@ -38,7 +34,7 @@ sudo chmod 660 /var/run/docker.sock
 3. Clone and build:
 
 ```
-git clone https://github.com/os-vector/wire-os --recurse-submodules
+git clone https://github.com/purpl-org/wire-os --recurse-submodules
 cd wire-os
 ./build/build.sh -bt <dev/oskr> -bp <boot-passwd> -v <build-increment>
 # boot password not required for dev
@@ -52,7 +48,7 @@ cd wire-os
 
 ## Development path
 
-- **Most work should be done in `wire-os-victor`. Generally, that's all you need to have cloned. That can be worked on on a less beefy Linux laptop or M-series MacBook. If you have a modern base WireOS OTA installed; you can clone `wire-os-victor`, make changes, build that standalone, and deploy that to your robot. This repo is more meant to be cloned to a build server, and built less often.**
+- **Most work should be done in `redOS`. Generally, that's all you need to have cloned. That can be worked on on a less beefy Linux laptop or M-series MacBook. If you have a modern base redOS-oelinux OTA installed; you can clone `redOS`, make changes, build that standalone, and deploy that to your robot. This repo is more meant to be cloned to a build server, and built less often.**
 
 ##  Donate
 
@@ -89,7 +85,7 @@ If you want to :P
 -   OpenCV has been updated to 4.12.0 (latest as of 07-2025)
   	-  Much better SDK streaming performance
 -   [Face overlays](https://www.reddit.com/r/AnkiVector/comments/1lteb3m/_/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
-        -  How to activate: [wire-os-victor PR #17](https://github.com/os-vector/wire-os-victor/pull/17)
+        -  How to activate: [redOS PR #17](https://github.com/purpl-org/redOS/pull/17)
 -   Global SSH key: ([ssh_root_key](https://raw.githubusercontent.com/kercre123/unlocking-vector/refs/heads/main/ssh_root_key))
 
 ## Helpful scripts
