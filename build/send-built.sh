@@ -29,7 +29,7 @@ ssh -p 2222 root@froggitti.net 'touch /all_servers/redos-ota-server/otas/latest'
 sleep 1s
 
 echo Echo new version number to new latest file
-ssh -p 2222 root@froggitti.net "echo 0.9.0.$INCREMENT /all_servers/redos-ota-server/otas/latest"
+ssh -p 2222 root@froggitti.net "echo 0.9.0.$INCREMENT >> /all_servers/redos-ota-server/otas/latest"
 sleep 1s
 
 echo Copy Dev OTA
