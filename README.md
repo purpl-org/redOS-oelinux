@@ -85,7 +85,7 @@ If you want to :P
 -   OpenCV has been updated to 4.12.0 (latest as of 07-2025)
   	-  Much better SDK streaming performance
 -   [Face overlays](https://www.reddit.com/r/AnkiVector/comments/1lteb3m/_/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
-        -  How to activate: [redOS PR #17](https://github.com/purpl-org/redOS/pull/17)
+        -  How to activate: [WireOS PR #17](https://github.com/os-vector/wire-os/pull/17)
 -   Global SSH key: ([ssh_root_key](https://raw.githubusercontent.com/kercre123/unlocking-vector/refs/heads/main/ssh_root_key))
 
 ## Helpful scripts
