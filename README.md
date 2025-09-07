@@ -88,7 +88,7 @@ If you want to :P
         -  How to activate: [redOS-oelinux-victor PR #17](https://github.com/purpl-org/redOS-oelinux-victor/pull/17)
 -   Global SSH key: ([ssh_root_key](https://raw.githubusercontent.com/kercre123/unlocking-vector/refs/heads/main/ssh_root_key))
 
-## Helpful scripts
+## Helpful scripts / aliases
 
 -	`ddn [on/off]`
 	-	Turns on/off DevDoNothing, which makes the bot stand still until shaken.
@@ -98,6 +98,11 @@ If you want to :P
 	-	A wrapper for cat/tail /var/log/messages:
 -	`temper`
 	-	Simple script which tells you CPU temps
+-	`voff`
+	-	Shuts the bot off, closes your SSH session before doing so
+		-	(the shutdown command just restarts the bot, this is different)
+-	`mrw`
+	-	mount -o rw,remount /
 
 ```
 usage: vmesg [-t|-c] <grep args>
