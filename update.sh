@@ -14,3 +14,6 @@ cd ../../
 cd anki/victor 
 git pull --no-recurse-submodules origin main
 cd ../../
+cd poky/victor/meta-vicos-mods/recipes-extended/purplpkg
+git pull origin purplOS-oelinux
+cd ../../../../../
